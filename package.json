@@ -1,0 +1,47 @@
+{
+  "name": "@gorillastack/athena-cloudtrail-partitioner",
+  "version": "1.0.0",
+  "description": "Athena CloudTrail Partitioner",
+  "main": "dist/handler.js",
+  "scripts": {
+    "compile": "rimraf dist/ && babel --config-file ./babelrc-node -d dist src",
+    "compile:dev": "rimraf dist/ && babel --config-file ./babelrc-node --watch -d dist src",
+    "lint": "node_modules/.bin/eslint src --cache",
+    "lint:fix": "node_modules/.bin/eslint src --fix --cache",
+    "local": "babel-node --config-file ./babelrc-node ./local",
+    "test": "babel-node --config-file ./babelrc-node ./node_modules/.bin/jasmine --random=false",
+    "postversion": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GorillaStack/athena-cloudtrail-partitioner.git"
+  },
+  "keywords": [
+    "athena",
+    "cloudtrail",
+    "s3",
+    "query"
+  ],
+  "author": "Elliott Spira (GorillaStack)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GorillaStack/athena-cloudtrail-partitioner/issues"
+  },
+  "homepage": "https://github.com/GorillaStack/athena-cloudtrail-partitioner#readme",
+  "dependencies": {
+    "aws-sdk": "^2.501.0",
+    "dynamodb-doc": "^1.0.0",
+    "lodash": "^4.17.15"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/node": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "dotenv": "^8.0.0",
+    "eslint": "^6.1.0",
+    "eslint-config-airbnb-base": "^13.2.0",
+    "eslint-plugin-import": "^2.18.2",
+    "rimraf": "^2.6.3"
+  }
+}

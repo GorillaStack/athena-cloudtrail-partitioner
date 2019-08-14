@@ -1,0 +1,203 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create the Glue Database and Crawler to make a queryable CloudTrail Logs table for Athena
+Parameters:
+  OrganizationId:
+    Type: String
+    Description: The Organization Id of your organization (omit if you are not using an Org CloudTrail)
+  S3BucketName:
+    Type: String
+    Description: The name of the bucket containing your CloudTrail logs
+
+Resources:
+  # We create the Glue table through the Glue Data catalog
+  CloudTrailLogsGlueTable:
+    Type: AWS::Glue::Table
+    Properties: 
+      CatalogId: !Ref "AWS::AccountId"
+      DatabaseName: default
+      TableInput: 
+        Name: cloudtrail_logs
+        TableType: EXTERNAL_TABLE
+        PartitionKeys: 
+          - Name: account
+            Type: STRING
+          - Name: region
+            Type: STRING
+          - Name: year
+            Type: STRING
+          - Name: month
+            Type: STRING
+          - Name: day
+            Type: STRING
+        StorageDescriptor: 
+          InputFormat: "com.amazon.emr.cloudtrail.CloudTrailInputFormat"
+          OutputFormat: IgnoreKeyTextOutputFormat
+          SerdeInfo:
+            SerializationLibrary: "com.amazon.emr.hive.serde.CloudTrailSerde"
+          StoredAsSubDirectories: true
+          Location: 
+            Fn::Join: 
+              - ""
+              - - "s3://"
+                - !Ref "S3BucketName"
+                - "/AWSLogs/"
+                - !Ref OrganizationId
+                - "/"
+          Columns:
+            -
+              Name: useridentity
+              Type: "struct<type:string,principalid:string,arn:string,accountid:string,sessioncontext:struct<attributes:struct<mfaauthenticated:string,creationdate:string>,sessionissuer:struct<type:string,principalid:string,arn:string,accountid:string,username:string>,webidfederationdata:string>,invokedby:string,accesskeyid:string,username:string,identityprovider:string>"
+            -
+              Name: eventversion
+              Type: STRING
+            -
+              Name: eventtime
+              Type: STRING
+            -
+              Name: eventtype
+              Type: STRING
+            -
+              Name: eventsource
+              Type: STRING
+            -
+              Name: eventname
+              Type: STRING
+            -
+              Name: awsregion
+              Type: STRING
+            -
+              Name: sourceipaddress
+              Type: STRING
+            -
+              Name: useragent
+              Type: STRING
+            -
+              Name: errorcode
+              Type: STRING
+            -
+              Name: errormessage
+              Type: STRING
+            -
+              Name: requestparameters
+              Type: STRING
+            -
+              Name: responseelements
+              Type: STRING
+            -
+              Name: additionaleventdata
+              Type: STRING
+            -
+              Name: requestid
+              Type: STRING
+            -
+              Name: eventid
+              Type: STRING
+            -
+              Name: resources
+              Type: "array<struct<arn:string,accountid:string,type:string>>"
+            -
+              Name: apiversion
+              Type: STRING
+            -
+              Name: readonly
+              Type: BOOL
+            -
+              Name: managementevent
+              Type: BOOL
+            -
+              Name: recipientaccountid
+              Type: STRING
+            -
+              Name: serviceeventdetails
+              Type: STRING
+            -
+              Name: sharedeventid
+              Type: STRING
+            -
+              Name: vpcendpointid
+              Type: STRING
+
+  # GlueCrawlerServiceRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     AssumeRolePolicyDocument:
+  #       Version: "2012-10-17"
+  #       Statement:
+  #         -
+  #           Effect: "Allow"
+  #           Principal:
+  #             Service:
+  #               - "glue.amazonaws.com"
+  #           Action:
+  #             - "sts:AssumeRole"
+  #     # Path: "/service-role/"
+  #     RoleName: AWSGlueServiceRole-cloudtrail_logs
+  #     ManagedPolicyArns: 
+  #       - arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
+  #     Policies:
+  #       -
+  #         PolicyName: "AWSGlueServiceRole-cloudtrail_logs_bucket_access_policy"
+  #         PolicyDocument:
+  #           Version: "2012-10-17"
+  #           Statement:
+  #             -
+  #               Effect: "Allow"
+  #               Action:
+  #                 - "s3:GetObject"
+  #                 - "s3:ListBucket"
+  #                 # - "s3:PutObject"
+  #               Resource:
+  #                 Fn::Join: 
+  #                   - ""
+  #                   - - "arn:aws:s3:::"
+  #                     - !Ref "S3BucketName"
+  #                     - "/AWSLogs/"
+  #                     - !Ref OrganizationId
+  #                     - "*"
+
+  # CloudTrailDataPartitionCrawler:
+  #   Type: AWS::Glue::Crawler
+  #   Properties: 
+  #     Configuration: "{\"Version\":1.0,\"CrawlerOutput\":{\"Partitions\":{\"AddOrUpdateBehavior\":\"InheritFromTable\"},\"Tables\":{\"AddOrUpdateBehavior\":\"MergeNewColumns\"}}}"
+  #     DatabaseName: default
+  #     Description: Crawls the CloudTrail logs bucket to create new partitions in the cloudtrail_logs glue table
+  #     Name: cloudtrail_log_partition_crawler
+  #     Role: !Ref GlueCrawlerServiceRole
+  #     Schedule: 
+  #       # at 01:00 UTC every day
+  #       ScheduleExpression: "cron(0 1 * * ? *)"
+  #     SchemaChangePolicy: 
+  #       UpdateBehavior: "LOG"
+  #       DeleteBehavior: "LOG"
+  #     Targets: 
+  #       S3Targets:
+  #         - Path:
+  #             Fn::Join: 
+  #               - ""
+  #               - - "s3://"
+  #                 - !Ref "S3BucketName"
+  #                 - "/AWSLogs/"
+  #                 - !Ref OrganizationId
+  #                 - "/"
+
+  # We need a DynamoDB Table to act as a record of which domains have been covered
+  # by our partitions
+  PartitionTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - 
+          AttributeName: "Domain"
+          AttributeType: "S"
+      KeySchema: 
+        - 
+          AttributeName: "Domain"
+          KeyType: "HASH"
+      TableName: "Athena-CloudTrail-Partitions"
+      BillingMode: PAY_PER_REQUEST
+
+  # The lambda function that is responsible for the creation of required partitions
+  # Much quicker, simpler and cheaper than using a glue crawler, which is overkill
+  # PartitionLambda:
+  #   Type: AWS::Lambda::Function
+  #   Properties:
