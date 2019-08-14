@@ -69,7 +69,7 @@ export const constructPartitionsForNewRegionOrCheckYears = async (account, regio
 export const constructPartitionsForNewAccountOrCheckRegions = async (account, regions) => {
   // otherwise, check for each region
   const partitions = await Promise.all(regions.map(
-    ({ name: region, children: years }) => constructPartitionsForNewRegionOrCheckYears(account, region, years)))
+    ({ name: region, children: years }) => constructPartitionsForNewRegionOrCheckYears(account, region, years)));
   return flatten(partitions);
 };
 
