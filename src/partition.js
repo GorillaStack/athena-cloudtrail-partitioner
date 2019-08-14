@@ -39,6 +39,9 @@ export const createAllPartitions = async (partitions, bucket, path) => {
   const glue = new AWS.Glue({ apiVersion: '2017-03-31' });
 
   while (partitions.length > 0) {
-    await batchCreatePartition(glue, partitions.splice(0, 100), bucket, path);
+    const batch = partitions.splice(0, 100);
+    await batchCreatePartition(glue, batch, bucket, path);
+    await Promise.all(batch
+      .map(({ account, region, year, month, day }) => savePartitionRecordForPath(`${account}/${region}/${year}/${month}/${day}`)));
   }
 };
