@@ -1,5 +1,6 @@
 import AWS from 'aws-sdk';
 import { savePartitionRecordForPath } from './store';
+import COLUMNS from './columns';
 
 AWS.config.update({ region: process.env.AWS_DEFAULT_REGION });
 
@@ -18,7 +19,16 @@ export const batchCreatePartition = (glue, partitions, bucket, path) => new Prom
     PartitionInputList: partitions.map(({ account, region, year, month, day }) => ({
       Values: [account, region, year, month, day],
       StorageDescriptor: {
-        Location: `s3://${bucket}/${path}${account}/CloudTrail/${region}/${year}/${month}/${day}`,
+        Columns: COLUMNS, 
+        Location: `s3://${bucket}/${path}${account}/CloudTrail/${region}/${year}/${month}/${day}/`,
+        InputFormat: 'com.amazon.emr.cloudtrail.CloudTrailInputFormat',
+        OutputFormat: 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat',
+        SerdeInfo: {
+          SerializationLibrary: 'com.amazon.emr.hive.serde.CloudTrailSerde',
+          Parameters: {
+            'serialization.format': '1',
+          },
+        },
       },
     })),
   }, (err, data) => {

@@ -18,22 +18,28 @@ Resources:
       TableInput: 
         Name: cloudtrail_logs
         TableType: EXTERNAL_TABLE
+        Parameters: { 
+          "EXTERNAL": "TRUE"
+        }
         PartitionKeys: 
           - Name: account
-            Type: STRING
+            Type: string
           - Name: region
-            Type: STRING
+            Type: string
           - Name: year
-            Type: STRING
+            Type: string
           - Name: month
-            Type: STRING
+            Type: string
           - Name: day
-            Type: STRING
+            Type: string
         StorageDescriptor: 
           InputFormat: "com.amazon.emr.cloudtrail.CloudTrailInputFormat"
-          OutputFormat: IgnoreKeyTextOutputFormat
+          OutputFormat: "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat"
           SerdeInfo:
             SerializationLibrary: "com.amazon.emr.hive.serde.CloudTrailSerde"
+            Parameters: {
+              "serialization.format": "1"
+            }
           StoredAsSubDirectories: true
           Location: 
             Fn::Join: 
@@ -42,80 +48,79 @@ Resources:
                 - !Ref "S3BucketName"
                 - "/AWSLogs/"
                 - !Ref OrganizationId
-                - "/"
           Columns:
             -
               Name: useridentity
               Type: "struct<type:string,principalid:string,arn:string,accountid:string,sessioncontext:struct<attributes:struct<mfaauthenticated:string,creationdate:string>,sessionissuer:struct<type:string,principalid:string,arn:string,accountid:string,username:string>,webidfederationdata:string>,invokedby:string,accesskeyid:string,username:string,identityprovider:string>"
             -
               Name: eventversion
-              Type: STRING
+              Type: string
             -
               Name: eventtime
-              Type: STRING
+              Type: string
             -
               Name: eventtype
-              Type: STRING
+              Type: string
             -
               Name: eventsource
-              Type: STRING
+              Type: string
             -
               Name: eventname
-              Type: STRING
+              Type: string
             -
               Name: awsregion
-              Type: STRING
+              Type: string
             -
               Name: sourceipaddress
-              Type: STRING
+              Type: string
             -
               Name: useragent
-              Type: STRING
+              Type: string
             -
               Name: errorcode
-              Type: STRING
+              Type: string
             -
               Name: errormessage
-              Type: STRING
+              Type: string
             -
               Name: requestparameters
-              Type: STRING
+              Type: string
             -
               Name: responseelements
-              Type: STRING
+              Type: string
             -
               Name: additionaleventdata
-              Type: STRING
+              Type: string
             -
               Name: requestid
-              Type: STRING
+              Type: string
             -
               Name: eventid
-              Type: STRING
+              Type: string
             -
               Name: resources
               Type: "array<struct<arn:string,accountid:string,type:string>>"
             -
               Name: apiversion
-              Type: STRING
+              Type: string
             -
               Name: readonly
-              Type: BOOL
+              Type: boolean
             -
               Name: managementevent
-              Type: BOOL
+              Type: boolean
             -
               Name: recipientaccountid
-              Type: STRING
+              Type: string
             -
               Name: serviceeventdetails
-              Type: STRING
+              Type: string
             -
               Name: sharedeventid
-              Type: STRING
+              Type: string
             -
               Name: vpcendpointid
-              Type: STRING
+              Type: string
 
   # GlueCrawlerServiceRole:
   #   Type: AWS::IAM::Role
