@@ -73,11 +73,7 @@ export const COLUMNS = [
   },
   {
     Name: 'readonly',
-    Type: 'boolean',
-  },
-  {
-    Name: 'managementevent',
-    Type: 'boolean',
+    Type: 'string',
   },
   {
     Name: 'recipientaccountid',
