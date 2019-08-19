@@ -143,6 +143,18 @@ Resources:
       RoleName: LambdaPartitionerRole-cloudtrail_logs
       Policies:
         -
+          PolicyName: "put_logs_policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "arn:aws:logs:*:*:*"
+        -
           PolicyName: "cloudtrail_logs_bucket_list_policy"
           PolicyDocument:
             Version: "2012-10-17"
