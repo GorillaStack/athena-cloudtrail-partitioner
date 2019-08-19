@@ -1,8 +1,12 @@
 # Athena CloudTrail Partitioner
 
+AWS Athena is a serverless query service that helps you query your unstructured S3 data without all the ETL.
+
+Athena allows you to query your CloudTrail log data from your S3 bucket on demand. However, it can be challenging to maintain sensible partitioning on the database over time.
+
 This project helps you periodically add partitions to your Athena/Glue database for each day/month/year/region/account added to your CloudTrail log bucket.
 
-[Read more about why we built this, and how it can be used, in this blog post]().
+[Read more about why we built this, and how it can be used, in this blog post](https://www.gorillastack.com/news/cloudtrail-athena-query/).
 
 ## Prerequisite - Enable CloudTrail
 
