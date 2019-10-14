@@ -1,7 +1,7 @@
 export const COLUMNS = [
   {
     Name: 'useridentity',
-    Type: 'struct<type:string,principalid:string,arn:string,accountid:string,sessioncontext:struct<attributes:struct<mfaauthenticated:string,creationdate:string>,sessionissuer:struct<type:string,principalid:string,arn:string,accountid:string,username:string>,webidfederationdata:string>,invokedby:string,accesskeyid:string,username:string,identityprovider:string>',
+    Type: 'struct<type:string,principalid:string,arn:string,accountid:string,invokedby:string,accesskeyid:string,username:string,sessioncontext:struct<attributes:struct<mfaauthenticated:string,creationdate:string>,sessionissuer:struct<type:string,principalid:string,arn:string,accountid:string,username:string>>>',
   },
   {
     Name: 'eventversion',
