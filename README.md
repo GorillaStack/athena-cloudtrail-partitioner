@@ -22,7 +22,7 @@ Currently for the CloudFormation template used in this project, CloudTrail must 
 
 Read the AWS documentation about how to [create your organization CloudTrail](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/creating-trail-organization.html) here.
 
-### S3 Bucket to Store Lambda Code
+### S3 Bucket to host the Lambda deployment package
 
 If you are not using the `ap-southeast-2` AWS region you will need to copy the Lambda deployment package ZIP file to an S3 bucket in your chosen region. For example:
 
