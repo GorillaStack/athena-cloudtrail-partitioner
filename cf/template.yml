@@ -3,13 +3,13 @@ Description: Create the Glue Database and Crawler to make a queryable CloudTrail
 Parameters:
   OrganizationId:
     Type: String
-    Description: The Organization Id of your organization (omit if you are not using an Org CloudTrail)
+    Description: The Organization Id of your organization
   S3BucketName:
     Type: String
     Description: The name of the bucket containing your CloudTrail logs
   CodeS3BucketName:
     Type: String
-    Description: The name of the bucket containing the Lambda code
+    Description: The name of the bucket containing the Lambda code (this will need to be changed if not in ap-southeast-2)
     Default: gorillastack-autotag-releases
   CodeS3Key:
     Type: String
