@@ -254,3 +254,13 @@ Resources:
             Fn::GetAtt:
               - PartitionLambda
               - Arn
+
+  ## Permissions for CloudWatch Events to invoke the Lambda function
+  PartitionLambdaPolicy:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref PartitionLambda
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt LambdaSchedule.Arn
+
