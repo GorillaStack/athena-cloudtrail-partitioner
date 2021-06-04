@@ -236,7 +236,7 @@ Resources:
         Fn::GetAtt:
           - LambdaPartitionerRole
           - Arn
-      Runtime: nodejs10.x
+      Runtime: nodejs14.x
       Timeout: 300
 
   ## An event rule to execute the lambda function once a day
