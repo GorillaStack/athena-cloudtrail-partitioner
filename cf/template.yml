@@ -231,13 +231,13 @@ Resources:
           BUCKET_NAME: !Ref S3BucketName
           ORGANIZATION_ID: !Ref OrganizationId
       Handler: "dist/handler.handler"
-      MemorySize: 1024
+      MemorySize: 3072
       Role:
         Fn::GetAtt:
           - LambdaPartitionerRole
           - Arn
       Runtime: nodejs14.x
-      Timeout: 300
+      Timeout: 900
 
   ## An event rule to execute the lambda function once a day
   LambdaSchedule:
